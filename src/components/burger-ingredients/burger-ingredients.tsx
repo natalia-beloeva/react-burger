@@ -1,51 +1,66 @@
-import { Tab } from '@krgaa/react-developer-burger-ui-components';
+import { useMemo, useState, useRef } from 'react';
 
-import type { TIngredient } from '@utils/types';
+import { IngredientsGroup } from '@components/burger-ingredients/components/ingredients-group/ingredients-group';
+import { IngredientsTabs } from '@components/burger-ingredients/components/ingredients-tabs/ingredients-tabs';
 
-import styles from './burger-ingredients.module.css';
+import type { TBurgerIngredientsProps } from '../burger-ingredients/types';
+import type { TIngredientType } from '@utils/types';
 
-type TBurgerIngredientsProps = {
-  ingredients: TIngredient[];
-};
+import styles from '../burger-ingredients/burger-ingredients.module.css';
 
 export const BurgerIngredients = ({
   ingredients,
 }: TBurgerIngredientsProps): React.JSX.Element => {
-  console.log(ingredients);
+  const buns = useMemo(
+    () => ingredients.filter((ingredient) => ingredient.type === 'bun'),
+    [ingredients]
+  );
+  const sauces = useMemo(
+    () => ingredients.filter((ingredient) => ingredient.type === 'sauce'),
+    [ingredients]
+  );
+  const mains = useMemo(
+    () => ingredients.filter((ingredient) => ingredient.type === 'main'),
+    [ingredients]
+  );
+
+  const bunsRef = useRef<HTMLElement>(null);
+  const saucesRef = useRef<HTMLElement>(null);
+  const mainsRef = useRef<HTMLElement>(null);
+
+  const groupRefs: Record<TIngredientType, React.RefObject<HTMLElement | null>> = {
+    bun: bunsRef,
+    sauce: saucesRef,
+    main: mainsRef,
+  };
+
+  const [currentTab, setCurrentTab] = useState<TIngredientType>('bun');
 
   return (
     <section className={styles.burger_ingredients}>
-      <nav>
-        <ul className={styles.menu}>
-          <Tab
-            value="bun"
-            active={true}
-            onClick={() => {
-              /* TODO */
-            }}
-          >
-            Булки
-          </Tab>
-          <Tab
-            value="main"
-            active={false}
-            onClick={() => {
-              /* TODO */
-            }}
-          >
-            Начинки
-          </Tab>
-          <Tab
-            value="sauce"
-            active={false}
-            onClick={() => {
-              /* TODO */
-            }}
-          >
-            Соусы
-          </Tab>
-        </ul>
-      </nav>
+      <IngredientsTabs
+        currentTab={currentTab}
+        onTabClick={(tab) => {
+          setCurrentTab(tab);
+          groupRefs[tab].current?.scrollIntoView({ behavior: 'smooth' });
+        }}
+      />
+
+      <div className={`${styles.lists} custom-scroll mt-10`}>
+        <IngredientsGroup ref={bunsRef} title="Булки" ingredients={buns} />
+        <IngredientsGroup
+          ref={saucesRef}
+          title="Соусы"
+          ingredients={sauces}
+          className="mt-10"
+        />
+        <IngredientsGroup
+          ref={mainsRef}
+          title="Начинки"
+          ingredients={mains}
+          className="mt-10"
+        />
+      </div>
     </section>
   );
 };
