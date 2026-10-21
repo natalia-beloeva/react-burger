@@ -13,12 +13,6 @@ type TModalProps = {
 };
 
 export const Modal = ({ title, onClose, children }: TModalProps): React.JSX.Element => {
-  const modalRoot = document.getElementById('modals');
-
-  if (!modalRoot) {
-    throw new Error('Modal root not found');
-  }
-
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent): void => {
       if (event.key === 'Escape') {
@@ -28,6 +22,12 @@ export const Modal = ({ title, onClose, children }: TModalProps): React.JSX.Elem
     window.addEventListener('keydown', handleEscape);
     return (): void => window.removeEventListener('keydown', handleEscape);
   }, [onClose]);
+
+  const modalRoot = document.getElementById('modals');
+
+  if (!modalRoot) {
+    throw new Error('Modal root not found');
+  }
 
   return createPortal(
     <>

@@ -19,11 +19,13 @@ export const App = (): React.JSX.Element => {
   useEffect(() => {
     getIngredients()
       .then(setIngredients)
-      .catch((err: unknown) => {
-        console.error(err);
-        setError(err instanceof Error ? err.message : 'Неизвестная ошибка');
-      })
-      .finally(() => setIsLoading(false));
+      .finally(() => setIsLoading(false))
+      .catch((requestError: unknown) => {
+        console.error(requestError);
+        setError(
+          requestError instanceof Error ? requestError.message : 'Неизвестная ошибка'
+        );
+      });
   }, []);
 
   return (

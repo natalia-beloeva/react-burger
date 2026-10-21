@@ -1,4 +1,4 @@
-import doneIcon from '@/images/done.svg';
+import doneIcon from '@/assets/images/done.svg';
 
 import type { TOrder } from '@utils/types';
 

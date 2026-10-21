@@ -8,10 +8,10 @@ import { mockOrder } from '@utils/mocks';
 import styles from './order-summary.module.css';
 
 type TOrderSummaryProps = {
-  total: number;
+  totalPrice: number;
 };
 
-export const OrderSummary = ({ total }: TOrderSummaryProps): React.JSX.Element => {
+export const OrderSummary = ({ totalPrice }: TOrderSummaryProps): React.JSX.Element => {
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
 
   const handleCloseOrderModal = useCallback(() => setIsOrderModalOpen(false), []);
@@ -20,7 +20,7 @@ export const OrderSummary = ({ total }: TOrderSummaryProps): React.JSX.Element =
     <>
       <div className={styles.summary}>
         <p className={`${styles.total} text text_type_digits-medium`}>
-          {total}
+          {totalPrice}
           <CurrencyIcon type="primary" />
         </p>
 

@@ -8,13 +8,17 @@ type TIngredientsResponse = {
 };
 
 export const getIngredients = async (): Promise<TIngredient[]> => {
-  const res = await fetch(INGREDIENTS_URL);
+  const response = await fetch(INGREDIENTS_URL);
 
-  if (!res.ok) {
-    throw new Error(`Ошибка ${res.status}`);
+  if (!response.ok) {
+    throw new Error(`Ошибка ${response.status}`);
   }
 
-  const json = (await res.json()) as TIngredientsResponse;
+  const responseBody = (await response.json()) as TIngredientsResponse;
 
-  return json.data;
+  if (!responseBody.success) {
+    throw new Error('Сервер не смог вернуть список ингредиентов');
+  }
+
+  return responseBody.data;
 };

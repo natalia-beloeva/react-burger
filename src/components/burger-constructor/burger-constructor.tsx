@@ -1,4 +1,5 @@
 import { ConstructorElement } from '@krgaa/react-developer-burger-ui-components';
+import { useMemo } from 'react';
 
 import { DraggableConstructorElement } from '@components/burger-constructor/components/draggable-constructor-element/draggable-constructor-element';
 import { OrderSummary } from '@components/burger-constructor/components/order-summary/order-summary';
@@ -14,12 +15,21 @@ type TBurgerConstructorProps = {
 export const BurgerConstructor = ({
   ingredients,
 }: TBurgerConstructorProps): React.JSX.Element => {
-  const bun = ingredients.find((ingredient) => ingredient.type === 'bun');
-  const fillings = ingredients.filter((ingredient) => ingredient.type !== 'bun');
+  const bun = useMemo(
+    () => ingredients.find((ingredient) => ingredient.type === 'bun'),
+    [ingredients]
+  );
+  const fillings = useMemo(
+    () => ingredients.filter((ingredient) => ingredient.type !== 'bun'),
+    [ingredients]
+  );
 
-  const total =
-    (bun ? bun.price * 2 : 0) +
-    fillings.reduce((sum, ingredient) => sum + ingredient.price, 0);
+  const totalPrice = useMemo(
+    () =>
+      (bun ? bun.price * 2 : 0) +
+      fillings.reduce((sum, ingredient) => sum + ingredient.price, 0),
+    [bun, fillings]
+  );
 
   return (
     <section className={styles.burger_constructor}>
@@ -57,7 +67,7 @@ export const BurgerConstructor = ({
         )}
       </div>
 
-      <OrderSummary total={total} />
+      <OrderSummary totalPrice={totalPrice} />
     </section>
   );
 };
