@@ -1,12 +1,17 @@
-import { useMemo, useState, useRef } from 'react';
+import { useCallback, useMemo, useState, useRef } from 'react';
 
+import { IngredientDetails } from '@components/burger-ingredients/components/ingredient-details/ingredient-details';
 import { IngredientsGroup } from '@components/burger-ingredients/components/ingredients-group/ingredients-group';
 import { IngredientsTabs } from '@components/burger-ingredients/components/ingredients-tabs/ingredients-tabs';
+import { Modal } from '@components/modal/modal';
 
-import type { TBurgerIngredientsProps } from '../burger-ingredients/types';
-import type { TIngredientType } from '@utils/types';
+import type { TIngredient, TIngredientType } from '@utils/types';
 
 import styles from '../burger-ingredients/burger-ingredients.module.css';
+
+type TBurgerIngredientsProps = {
+  ingredients: TIngredient[];
+};
 
 export const BurgerIngredients = ({
   ingredients,
@@ -35,6 +40,13 @@ export const BurgerIngredients = ({
   };
 
   const [currentTab, setCurrentTab] = useState<TIngredientType>('bun');
+  const [selectedIngredient, setSelectedIngredient] = useState<TIngredient | null>(null);
+
+  const handleIngredientClick = useCallback((ingredient: TIngredient) => {
+    setSelectedIngredient(ingredient);
+  }, []);
+
+  const handleCloseIngredientModal = useCallback(() => setSelectedIngredient(null), []);
 
   return (
     <section className={styles.burger_ingredients}>
@@ -47,20 +59,33 @@ export const BurgerIngredients = ({
       />
 
       <div className={`${styles.lists} custom-scroll mt-10`}>
-        <IngredientsGroup ref={bunsRef} title="Булки" ingredients={buns} />
+        <IngredientsGroup
+          ref={bunsRef}
+          title="Булки"
+          ingredients={buns}
+          onIngredientClick={handleIngredientClick}
+        />
         <IngredientsGroup
           ref={saucesRef}
           title="Соусы"
           ingredients={sauces}
           className="mt-10"
+          onIngredientClick={handleIngredientClick}
         />
         <IngredientsGroup
           ref={mainsRef}
           title="Начинки"
           ingredients={mains}
           className="mt-10"
+          onIngredientClick={handleIngredientClick}
         />
       </div>
+
+      {selectedIngredient && (
+        <Modal title="Детали ингредиента" onClose={handleCloseIngredientModal}>
+          <IngredientDetails ingredient={selectedIngredient} />
+        </Modal>
+      )}
     </section>
   );
 };

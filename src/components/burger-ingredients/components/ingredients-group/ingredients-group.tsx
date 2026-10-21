@@ -2,15 +2,24 @@ import { memo } from 'react';
 
 import { IngredientCard } from '@components/burger-ingredients/components/ingredient-card/ingredient-card';
 
-import type { TIngredientsGroupProps } from '../ingredients-group/types';
+import type { TIngredient } from '@utils/types';
 
 import styles from '../ingredients-group/ingredients-group.module.css';
+
+type TIngredientsGroupProps = {
+  ref: React.Ref<HTMLElement>;
+  title: string;
+  ingredients: TIngredient[];
+  className?: string;
+  onIngredientClick: (ingredient: TIngredient) => void;
+};
 
 const IngredientsGroupComponent = ({
   ref,
   title,
   ingredients,
   className,
+  onIngredientClick,
 }: TIngredientsGroupProps): React.JSX.Element => {
   return (
     <section ref={ref} className={className}>
@@ -19,7 +28,7 @@ const IngredientsGroupComponent = ({
       <ul className={`${styles.list} mt-6`}>
         {ingredients.map((ingredient) => (
           <li key={ingredient._id}>
-            <IngredientCard ingredient={ingredient} />
+            <IngredientCard ingredient={ingredient} onClick={onIngredientClick} />
           </li>
         ))}
       </ul>

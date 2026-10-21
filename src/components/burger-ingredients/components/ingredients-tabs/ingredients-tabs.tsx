@@ -1,6 +1,5 @@
 import { Tab } from '@krgaa/react-developer-burger-ui-components';
 
-import type { TIngredientsTabsProps } from '../ingredients-tabs/types';
 import type { TIngredientType } from '@utils/types';
 
 import styles from '../ingredients-tabs/ingredients-tabs.module.css';
@@ -10,6 +9,11 @@ const tabs: { value: TIngredientType; title: string }[] = [
   { value: 'sauce', title: 'Соусы' },
   { value: 'main', title: 'Начинки' },
 ];
+
+type TIngredientsTabsProps = {
+  currentTab: TIngredientType;
+  onTabClick: (value: TIngredientType) => void;
+};
 
 export const IngredientsTabs = ({
   currentTab,
@@ -23,7 +27,7 @@ export const IngredientsTabs = ({
             <Tab
               value={tab.value}
               active={currentTab === tab.value}
-              onClick={(value) => onTabClick(value as TIngredientType)}
+              onClick={() => onTabClick(tab.value)}
             >
               {tab.title}
             </Tab>

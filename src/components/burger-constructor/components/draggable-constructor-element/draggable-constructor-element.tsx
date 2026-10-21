@@ -3,9 +3,13 @@ import {
   DragIcon,
 } from '@krgaa/react-developer-burger-ui-components';
 
-import type { TDraggableConstructorElementProps } from './types';
+import type { TIngredient } from '@utils/types';
 
 import styles from './draggable-constructor-element.module.css';
+
+type TDraggableConstructorElementProps = {
+  ingredient: TIngredient;
+};
 
 export const DraggableConstructorElement = ({
   ingredient,
