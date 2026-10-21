@@ -17,6 +17,7 @@ export const DraggableConstructorElement = ({
   return (
     <div className={styles.item}>
       <DragIcon type="primary" className={styles.icon} />
+
       <ConstructorElement
         text={ingredient.name}
         price={ingredient.price}
