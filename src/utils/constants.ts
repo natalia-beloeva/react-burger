@@ -1,2 +1,1 @@
-// 'https://new-stellarburgers.education-services.ru/api/ingredients'
-export const INGREDIENTS_URL = '/ingredients.json';
+export const INGREDIENTS_URL = 'https://norma.ffapi.ru/api/ingredients';
