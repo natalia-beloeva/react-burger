@@ -1,9 +1,10 @@
-import { useCallback, useMemo, useState, useRef } from 'react';
+import { useMemo, useState, useRef } from 'react';
 
 import { IngredientDetails } from '@components/burger-ingredients/components/ingredient-details/ingredient-details';
 import { IngredientsGroup } from '@components/burger-ingredients/components/ingredients-group/ingredients-group';
 import { IngredientsTabs } from '@components/burger-ingredients/components/ingredients-tabs/ingredients-tabs';
 import { Modal } from '@components/modal/modal';
+import { useModal } from '@hooks/use-modal';
 
 import type { TIngredient, TIngredientType } from '@utils/types';
 
@@ -40,13 +41,11 @@ export const BurgerIngredients = ({
   };
 
   const [currentTab, setCurrentTab] = useState<TIngredientType>('bun');
-  const [selectedIngredient, setSelectedIngredient] = useState<TIngredient | null>(null);
-
-  const handleIngredientClick = useCallback((ingredient: TIngredient) => {
-    setSelectedIngredient(ingredient);
-  }, []);
-
-  const handleCloseIngredientModal = useCallback(() => setSelectedIngredient(null), []);
+  const {
+    modalData: selectedIngredient,
+    openModal: openIngredientModal,
+    closeModal: closeIngredientModal,
+  } = useModal<TIngredient>();
 
   return (
     <section className={styles.burger_ingredients}>
@@ -63,26 +62,26 @@ export const BurgerIngredients = ({
           ref={bunsRef}
           title="Булки"
           ingredients={buns}
-          onIngredientClick={handleIngredientClick}
+          onIngredientClick={openIngredientModal}
         />
         <IngredientsGroup
           ref={saucesRef}
           title="Соусы"
           ingredients={sauces}
           className="mt-10"
-          onIngredientClick={handleIngredientClick}
+          onIngredientClick={openIngredientModal}
         />
         <IngredientsGroup
           ref={mainsRef}
           title="Начинки"
           ingredients={mains}
           className="mt-10"
-          onIngredientClick={handleIngredientClick}
+          onIngredientClick={openIngredientModal}
         />
       </div>
 
       {selectedIngredient && (
-        <Modal title="Детали ингредиента" onClose={handleCloseIngredientModal}>
+        <Modal title="Детали ингредиента" onClose={closeIngredientModal}>
           <IngredientDetails ingredient={selectedIngredient} />
         </Modal>
       )}

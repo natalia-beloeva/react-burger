@@ -1,9 +1,11 @@
 import { Button, CurrencyIcon } from '@krgaa/react-developer-burger-ui-components';
-import { useCallback, useState } from 'react';
 
 import { OrderDetails } from '@components/burger-constructor/components/order-details/order-details';
 import { Modal } from '@components/modal/modal';
+import { useModal } from '@hooks/use-modal';
 import { mockOrder } from '@utils/mocks';
+
+import type { TOrder } from '@utils/types';
 
 import styles from './order-summary.module.css';
 
@@ -12,9 +14,7 @@ type TOrderSummaryProps = {
 };
 
 export const OrderSummary = ({ totalPrice }: TOrderSummaryProps): React.JSX.Element => {
-  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
-
-  const handleCloseOrderModal = useCallback(() => setIsOrderModalOpen(false), []);
+  const { modalData: order, openModal, closeModal } = useModal<TOrder>();
 
   return (
     <>
@@ -28,15 +28,15 @@ export const OrderSummary = ({ totalPrice }: TOrderSummaryProps): React.JSX.Elem
           type="primary"
           size="large"
           htmlType="button"
-          onClick={() => setIsOrderModalOpen(true)}
+          onClick={() => openModal(mockOrder)}
         >
           Оформить заказ
         </Button>
       </div>
 
-      {isOrderModalOpen && (
-        <Modal onClose={handleCloseOrderModal}>
-          <OrderDetails order={mockOrder} />
+      {order && (
+        <Modal onClose={closeModal}>
+          <OrderDetails order={order} />
         </Modal>
       )}
     </>
