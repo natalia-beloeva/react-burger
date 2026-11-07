@@ -1,10 +1,12 @@
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 
 import { IngredientDetails } from '@components/burger-ingredients/components/ingredient-details/ingredient-details';
 import { IngredientsGroup } from '@components/burger-ingredients/components/ingredients-group/ingredients-group';
 import { IngredientsTabs } from '@components/burger-ingredients/components/ingredients-tabs/ingredients-tabs';
 import { Modal } from '@components/modal/modal';
 import { useModal } from '@hooks/use-modal';
+import { useScrollSpy } from '@hooks/use-scroll-spy';
+import { INGREDIENT_CATEGORIES } from '@utils/constants';
 
 import type { TIngredient, TIngredientType } from '@utils/types';
 
@@ -17,19 +19,16 @@ type TBurgerIngredientsProps = {
 export const BurgerIngredients = ({
   ingredients,
 }: TBurgerIngredientsProps): React.JSX.Element => {
-  const buns = useMemo(
-    () => ingredients.filter((ingredient) => ingredient.type === 'bun'),
-    [ingredients]
-  );
-  const sauces = useMemo(
-    () => ingredients.filter((ingredient) => ingredient.type === 'sauce'),
-    [ingredients]
-  );
-  const mains = useMemo(
-    () => ingredients.filter((ingredient) => ingredient.type === 'main'),
+  const ingredientsByType: Record<TIngredientType, TIngredient[]> = useMemo(
+    () => ({
+      bun: ingredients.filter((ingredient) => ingredient.type === 'bun'),
+      sauce: ingredients.filter((ingredient) => ingredient.type === 'sauce'),
+      main: ingredients.filter((ingredient) => ingredient.type === 'main'),
+    }),
     [ingredients]
   );
 
+  const listsRef = useRef<HTMLDivElement>(null);
   const bunsRef = useRef<HTMLElement>(null);
   const saucesRef = useRef<HTMLElement>(null);
   const mainsRef = useRef<HTMLElement>(null);
@@ -40,7 +39,17 @@ export const BurgerIngredients = ({
     main: mainsRef,
   };
 
-  const [currentTab, setCurrentTab] = useState<TIngredientType>('bun');
+  const categorySections = INGREDIENT_CATEGORIES.map((category) => ({
+    id: category.type,
+    ref: groupRefs[category.type],
+  }));
+
+  const {
+    activeSection: currentTab,
+    handleScroll: handleListsScroll,
+    scrollToSection,
+  } = useScrollSpy(listsRef, categorySections, INGREDIENT_CATEGORIES[0].type);
+
   const {
     modalData: selectedIngredient,
     openModal: openIngredientModal,
@@ -49,35 +58,22 @@ export const BurgerIngredients = ({
 
   return (
     <section className={styles.burger_ingredients}>
-      <IngredientsTabs
-        currentTab={currentTab}
-        onTabClick={(tab) => {
-          setCurrentTab(tab);
-          groupRefs[tab].current?.scrollIntoView({ behavior: 'smooth' });
-        }}
-      />
+      <IngredientsTabs currentTab={currentTab} onTabClick={scrollToSection} />
 
-      <div className={`${styles.lists} custom-scroll mt-10`}>
-        <IngredientsGroup
-          ref={bunsRef}
-          title="Булки"
-          ingredients={buns}
-          onIngredientClick={openIngredientModal}
-        />
-        <IngredientsGroup
-          ref={saucesRef}
-          title="Соусы"
-          ingredients={sauces}
-          className="mt-10"
-          onIngredientClick={openIngredientModal}
-        />
-        <IngredientsGroup
-          ref={mainsRef}
-          title="Начинки"
-          ingredients={mains}
-          className="mt-10"
-          onIngredientClick={openIngredientModal}
-        />
+      <div
+        ref={listsRef}
+        className={`${styles.lists} custom-scroll mt-10`}
+        onScroll={handleListsScroll}
+      >
+        {INGREDIENT_CATEGORIES.map((category) => (
+          <IngredientsGroup
+            key={category.type}
+            ref={groupRefs[category.type]}
+            title={category.title}
+            ingredients={ingredientsByType[category.type]}
+            onIngredientClick={openIngredientModal}
+          />
+        ))}
       </div>
 
       {selectedIngredient && (

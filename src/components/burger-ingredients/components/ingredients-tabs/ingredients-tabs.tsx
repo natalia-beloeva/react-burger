@@ -1,14 +1,10 @@
 import { Tab } from '@krgaa/react-developer-burger-ui-components';
 
+import { INGREDIENT_CATEGORIES } from '@utils/constants';
+
 import type { TIngredientType } from '@utils/types';
 
 import styles from '../ingredients-tabs/ingredients-tabs.module.css';
-
-const tabs: { value: TIngredientType; title: string }[] = [
-  { value: 'bun', title: 'Булки' },
-  { value: 'sauce', title: 'Соусы' },
-  { value: 'main', title: 'Начинки' },
-];
 
 type TIngredientsTabsProps = {
   currentTab: TIngredientType;
@@ -22,14 +18,14 @@ export const IngredientsTabs = ({
   return (
     <nav>
       <ul className={styles.tabs}>
-        {tabs.map((tab) => (
-          <li key={tab.value}>
+        {INGREDIENT_CATEGORIES.map((category) => (
+          <li key={category.type}>
             <Tab
-              value={tab.value}
-              active={currentTab === tab.value}
-              onClick={() => onTabClick(tab.value)}
+              value={category.type}
+              active={currentTab === category.type}
+              onClick={() => onTabClick(category.type)}
             >
-              {tab.title}
+              {category.title}
             </Tab>
           </li>
         ))}
