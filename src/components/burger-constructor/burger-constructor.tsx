@@ -8,16 +8,7 @@ import { useAppSelector } from '@services/hooks';
 import styles from './burger-constructor.module.css';
 
 export const BurgerConstructor = (): React.JSX.Element => {
-  const ingredients = useAppSelector((state) => state.ingredients.items);
-
-  const bun = useMemo(
-    () => ingredients.find((ingredient) => ingredient.type === 'bun'),
-    [ingredients]
-  );
-  const fillings = useMemo(
-    () => ingredients.filter((ingredient) => ingredient.type !== 'bun'),
-    [ingredients]
-  );
+  const { bun, fillings } = useAppSelector((state) => state.burgerConstructor);
 
   const totalPrice = useMemo(
     () =>
@@ -49,7 +40,7 @@ export const BurgerConstructor = (): React.JSX.Element => {
 
         <ul className={`${styles.fillings} custom-scroll`}>
           {fillings.map((ingredient) => (
-            <li key={ingredient._id}>
+            <li key={ingredient.key}>
               <DraggableConstructorElement ingredient={ingredient} />
             </li>
           ))}
