@@ -1,20 +1,32 @@
 import { Button, CurrencyIcon } from '@krgaa/react-developer-burger-ui-components';
+import { useCallback } from 'react';
 
-import { OrderDetails } from '@components/burger-constructor/components/order-details/order-details';
+import { OrderDetails } from '@components/burger-constructor/components/order-summary/components/order-details/order-details';
+import { ErrorMessage } from '@components/error-message/error-message';
 import { Modal } from '@components/modal/modal';
-import { useModal } from '@hooks/use-modal';
-import { mockOrder } from '@utils/mocks';
-
-import type { TOrder } from '@utils/types';
+import { useAppDispatch, useAppSelector } from '@services/hooks';
+import { placeOrder, clearOrder } from '@services/order/order-slice';
 
 import styles from './order-summary.module.css';
 
 type TOrderSummaryProps = {
   totalPrice: number;
+  ingredientIds: string[];
 };
 
-export const OrderSummary = ({ totalPrice }: TOrderSummaryProps): React.JSX.Element => {
-  const { modalData: order, openModal, closeModal } = useModal<TOrder>();
+export const OrderSummary = ({
+  totalPrice,
+  ingredientIds,
+}: TOrderSummaryProps): React.JSX.Element => {
+  const dispatch = useAppDispatch();
+
+  const { item: order, isLoading, error } = useAppSelector((state) => state.order);
+
+  const handleOrderClick = useCallback(() => {
+    void dispatch(placeOrder(ingredientIds));
+  }, [dispatch, ingredientIds]);
+
+  const closeOrderModal = useCallback(() => dispatch(clearOrder()), [dispatch]);
 
   return (
     <>
@@ -28,15 +40,23 @@ export const OrderSummary = ({ totalPrice }: TOrderSummaryProps): React.JSX.Elem
           type="primary"
           size="large"
           htmlType="button"
-          onClick={() => openModal(mockOrder)}
+          disabled={isLoading || ingredientIds.length === 0}
+          onClick={handleOrderClick}
         >
-          Оформить заказ
+          {isLoading ? 'Оформляем...' : 'Оформить заказ'}
         </Button>
       </div>
 
-      {order && (
-        <Modal onClose={closeModal}>
-          <OrderDetails order={order} />
+      {(order ?? error) && (
+        <Modal onClose={closeOrderModal}>
+          {order ? (
+            <OrderDetails order={order} />
+          ) : (
+            <ErrorMessage
+              title="Не удалось оформить заказ"
+              details="Попробуйте ещё раз"
+            />
+          )}
         </Modal>
       )}
     </>

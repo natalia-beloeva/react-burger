@@ -26,6 +26,12 @@ export const BurgerConstructor = (): React.JSX.Element => {
     [bun, fillings]
   );
 
+  const orderIngredientIds = useMemo(
+    () =>
+      bun ? [bun._id, ...fillings.map((ingredient) => ingredient._id), bun._id] : [],
+    [bun, fillings]
+  );
+
   return (
     <section className={styles.burger_constructor}>
       <div className={styles.elements}>
@@ -62,7 +68,7 @@ export const BurgerConstructor = (): React.JSX.Element => {
         )}
       </div>
 
-      <OrderSummary totalPrice={totalPrice} />
+      <OrderSummary totalPrice={totalPrice} ingredientIds={orderIngredientIds} />
     </section>
   );
 };

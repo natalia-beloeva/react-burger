@@ -1,6 +1,9 @@
 import type { TIngredientType } from '@utils/types';
 
-export const INGREDIENTS_URL = 'https://norma.ffapi.ru/api/ingredients';
+export const BASE_URL = 'https://norma.ffapi.ru/api';
+
+export const INGREDIENTS_URL = `${BASE_URL}/ingredients`;
+export const ORDERS_URL = `${BASE_URL}/orders`;
 
 export const INGREDIENT_CATEGORIES: { type: TIngredientType; title: string }[] = [
   { type: 'bun', title: 'Булки' },
