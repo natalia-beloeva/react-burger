@@ -2,6 +2,8 @@ import { Counter, CurrencyIcon } from '@krgaa/react-developer-burger-ui-componen
 import { memo, useRef } from 'react';
 import { useDrag } from 'react-dnd';
 
+import { selectIngredientCounts } from '@services/burger-constructor/burger-constructor-slice';
+import { useAppSelector } from '@services/hooks';
 import { INGREDIENT_DND_TYPE } from '@utils/constants';
 
 import type { TIngredient } from '@utils/types';
@@ -10,15 +12,17 @@ import styles from '../ingredient-card/ingredient-card.module.css';
 
 type TIngredientCardProps = {
   ingredient: TIngredient;
-  count?: number;
   onClick: (ingredient: TIngredient) => void;
 };
 
 const IngredientCardComponent = ({
   ingredient,
-  count = 0,
   onClick,
 }: TIngredientCardProps): React.JSX.Element => {
+  const count = useAppSelector(
+    (state) => selectIngredientCounts(state)[ingredient._id] ?? 0
+  );
+
   const cardRef = useRef<HTMLElement>(null);
 
   const [{ isDragging }, drag] = useDrag({

@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-import { IngredientCard } from '@components/burger-ingredients/components/ingredient-card/ingredient-card';
+import { IngredientCard } from '@components/burger-ingredients/components/ingredients-group/components/ingredient-card/ingredient-card';
 
 import type { TIngredient } from '@utils/types';
 
