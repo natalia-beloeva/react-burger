@@ -19,9 +19,10 @@ import type { TIngredient, TIngredientType } from '@utils/types';
 import styles from '../burger-ingredients/burger-ingredients.module.css';
 
 export const BurgerIngredients = (): React.JSX.Element => {
+  const dispatch = useAppDispatch();
+
   const ingredients = useAppSelector(selectIngredients);
   const selectedIngredient = useAppSelector(selectSelectedIngredient);
-  const dispatch = useAppDispatch();
 
   const ingredientsByType: Record<TIngredientType, TIngredient[]> = useMemo(
     () => ({

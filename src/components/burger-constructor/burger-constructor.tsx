@@ -18,9 +18,10 @@ import type { TIngredient } from '@utils/types';
 import styles from './burger-constructor.module.css';
 
 export const BurgerConstructor = (): React.JSX.Element => {
+  const dispatch = useAppDispatch();
+
   const bun = useAppSelector(selectBun);
   const ingredients = useAppSelector(selectConstructorIngredients);
-  const dispatch = useAppDispatch();
 
   const dropAreaRef = useRef<HTMLDivElement>(null);
 
