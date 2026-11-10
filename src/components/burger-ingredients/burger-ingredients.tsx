@@ -1,24 +1,26 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useCallback } from 'react';
 
 import { IngredientDetails } from '@components/burger-ingredients/components/ingredient-details/ingredient-details';
 import { IngredientsGroup } from '@components/burger-ingredients/components/ingredients-group/ingredients-group';
 import { IngredientsTabs } from '@components/burger-ingredients/components/ingredients-tabs/ingredients-tabs';
 import { Modal } from '@components/modal/modal';
-import { useModal } from '@hooks/use-modal';
 import { useScrollSpy } from '@hooks/use-scroll-spy';
+import { useAppDispatch, useAppSelector } from '@services/hooks';
+import {
+  setSelectedIngredient,
+  clearSelectedIngredient,
+} from '@services/selected-ingredient/selected-ingredient-slice';
 import { INGREDIENT_CATEGORIES } from '@utils/constants';
 
 import type { TIngredient, TIngredientType } from '@utils/types';
 
 import styles from '../burger-ingredients/burger-ingredients.module.css';
 
-type TBurgerIngredientsProps = {
-  ingredients: TIngredient[];
-};
+export const BurgerIngredients = (): React.JSX.Element => {
+  const ingredients = useAppSelector((state) => state.ingredients.items);
+  const selectedIngredient = useAppSelector((state) => state.selectedIngredient.item);
+  const dispatch = useAppDispatch();
 
-export const BurgerIngredients = ({
-  ingredients,
-}: TBurgerIngredientsProps): React.JSX.Element => {
   const ingredientsByType: Record<TIngredientType, TIngredient[]> = useMemo(
     () => ({
       bun: ingredients.filter((ingredient) => ingredient.type === 'bun'),
@@ -50,11 +52,15 @@ export const BurgerIngredients = ({
     scrollToSection,
   } = useScrollSpy(listsRef, categorySections, INGREDIENT_CATEGORIES[0].type);
 
-  const {
-    modalData: selectedIngredient,
-    openModal: openIngredientModal,
-    closeModal: closeIngredientModal,
-  } = useModal<TIngredient>();
+  const openIngredientModal = useCallback(
+    (ingredient: TIngredient) => dispatch(setSelectedIngredient(ingredient)),
+    [dispatch]
+  );
+
+  const closeIngredientModal = useCallback(
+    () => dispatch(clearSelectedIngredient()),
+    [dispatch]
+  );
 
   return (
     <section className={styles.burger_ingredients}>

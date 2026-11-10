@@ -3,18 +3,13 @@ import { useMemo } from 'react';
 
 import { DraggableConstructorElement } from '@components/burger-constructor/components/draggable-constructor-element/draggable-constructor-element';
 import { OrderSummary } from '@components/burger-constructor/components/order-summary/order-summary';
-
-import type { TIngredient } from '@utils/types';
+import { useAppSelector } from '@services/hooks';
 
 import styles from './burger-constructor.module.css';
 
-type TBurgerConstructorProps = {
-  ingredients: TIngredient[];
-};
+export const BurgerConstructor = (): React.JSX.Element => {
+  const ingredients = useAppSelector((state) => state.ingredients.items);
 
-export const BurgerConstructor = ({
-  ingredients,
-}: TBurgerConstructorProps): React.JSX.Element => {
   const bun = useMemo(
     () => ingredients.find((ingredient) => ingredient.type === 'bun'),
     [ingredients]

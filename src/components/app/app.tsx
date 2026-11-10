@@ -13,11 +13,7 @@ import styles from './app.module.css';
 export const App = (): React.JSX.Element => {
   const dispatch = useAppDispatch();
 
-  const {
-    items: ingredients,
-    isLoading,
-    error,
-  } = useAppSelector((state) => state.ingredients);
+  const { isLoading, error } = useAppSelector((state) => state.ingredients);
 
   useEffect(() => {
     void dispatch(fetchIngredients());
@@ -42,8 +38,8 @@ export const App = (): React.JSX.Element => {
 
         {!isLoading && !error && (
           <>
-            <BurgerIngredients ingredients={ingredients} />
-            <BurgerConstructor ingredients={ingredients} />
+            <BurgerIngredients />
+            <BurgerConstructor />
           </>
         )}
       </main>
