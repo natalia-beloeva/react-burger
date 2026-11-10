@@ -1,32 +1,27 @@
 import { Preloader } from '@krgaa/react-developer-burger-ui-components';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import { AppHeader } from '@components/app-header/app-header';
 import { BurgerConstructor } from '@components/burger-constructor/burger-constructor';
 import { BurgerIngredients } from '@components/burger-ingredients/burger-ingredients';
 import { ErrorMessage } from '@components/error-message/error-message';
-import { getIngredients } from '@utils/api';
-
-import type { TIngredient } from '@utils/types';
+import { useAppDispatch, useAppSelector } from '@services/hooks';
+import { fetchIngredients } from '@services/ingredients/ingredients-slice';
 
 import styles from './app.module.css';
 
 export const App = (): React.JSX.Element => {
-  const [ingredients, setIngredients] = useState<TIngredient[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+
+  const {
+    items: ingredients,
+    isLoading,
+    error,
+  } = useAppSelector((state) => state.ingredients);
 
   useEffect(() => {
-    getIngredients()
-      .then(setIngredients)
-      .finally(() => setIsLoading(false))
-      .catch((requestError: unknown) => {
-        console.error(requestError);
-        setError(
-          requestError instanceof Error ? requestError.message : 'Неизвестная ошибка'
-        );
-      });
-  }, []);
+    void dispatch(fetchIngredients());
+  }, [dispatch]);
 
   return (
     <div className={styles.app}>
