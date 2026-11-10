@@ -12,3 +12,4 @@ export const INGREDIENT_CATEGORIES: { type: TIngredientType; title: string }[] =
 ];
 
 export const INGREDIENT_DND_TYPE = 'ingredient';
+export const CONSTRUCTOR_INGREDIENT_DND_TYPE = 'constructor-ingredient';

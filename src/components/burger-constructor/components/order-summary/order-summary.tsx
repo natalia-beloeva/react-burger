@@ -26,7 +26,7 @@ export const OrderSummary = ({
     void dispatch(placeOrder(ingredientIds));
   }, [dispatch, ingredientIds]);
 
-  const closeOrderModal = useCallback(() => dispatch(clearOrder()), [dispatch]);
+  const handleOrderModalClose = useCallback(() => dispatch(clearOrder()), [dispatch]);
 
   return (
     <>
@@ -48,7 +48,7 @@ export const OrderSummary = ({
       </div>
 
       {(order ?? error) && (
-        <Modal onClose={closeOrderModal}>
+        <Modal onClose={handleOrderModalClose}>
           {order ? (
             <OrderDetails order={order} />
           ) : (

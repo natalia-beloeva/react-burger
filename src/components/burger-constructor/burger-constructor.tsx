@@ -7,7 +7,7 @@ import { DraggableConstructorElement } from '@components/burger-constructor/comp
 import { OrderSummary } from '@components/burger-constructor/components/order-summary/order-summary';
 import { addIngredient } from '@services/burger-constructor/burger-constructor-slice';
 import { useAppDispatch, useAppSelector } from '@services/hooks';
-import { INGREDIENT_DND_TYPE } from '@utils/constants';
+import { CONSTRUCTOR_INGREDIENT_DND_TYPE, INGREDIENT_DND_TYPE } from '@utils/constants';
 
 import type { TIngredient } from '@utils/types';
 
@@ -19,7 +19,7 @@ export const BurgerConstructor = (): React.JSX.Element => {
 
   const dropAreaRef = useRef<HTMLDivElement>(null);
 
-  const [{ isOver }, dropRef] = useDrop({
+  const [{ isOver }, drop] = useDrop({
     accept: INGREDIENT_DND_TYPE,
     drop: (ingredient: TIngredient) => {
       dispatch(addIngredient(ingredient));
@@ -27,7 +27,12 @@ export const BurgerConstructor = (): React.JSX.Element => {
     collect: (monitor) => ({ isOver: monitor.isOver() }),
   });
 
-  dropRef(dropAreaRef);
+  drop(dropAreaRef);
+
+  const listRef = useRef<HTMLUListElement>(null);
+  const [, listDrop] = useDrop({ accept: CONSTRUCTOR_INGREDIENT_DND_TYPE });
+
+  listDrop(listRef);
 
   const totalPrice = useMemo(
     () =>
@@ -62,15 +67,15 @@ export const BurgerConstructor = (): React.JSX.Element => {
           )}
         </div>
 
-        <ul className={`${styles.fillings} custom-scroll`}>
+        <ul ref={listRef} className={`${styles.ingredients} custom-scroll`}>
           {ingredients.length > 0 ? (
-            ingredients.map((ingredient) => (
+            ingredients.map((ingredient, index) => (
               <li key={ingredient.key}>
-                <DraggableConstructorElement ingredient={ingredient} />
+                <DraggableConstructorElement ingredient={ingredient} index={index} />
               </li>
             ))
           ) : (
-            <li className={styles.filling_placeholder}>
+            <li className={styles.ingredient_placeholder}>
               <ConstructorPlaceholder text="Выберите начинку" />
             </li>
           )}

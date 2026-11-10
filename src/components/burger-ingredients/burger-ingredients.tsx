@@ -52,12 +52,12 @@ export const BurgerIngredients = (): React.JSX.Element => {
     scrollToSection,
   } = useScrollSpy(listsRef, categorySections, INGREDIENT_CATEGORIES[0].type);
 
-  const openIngredientModal = useCallback(
+  const handleIngredientClick = useCallback(
     (ingredient: TIngredient) => dispatch(setSelectedIngredient(ingredient)),
     [dispatch]
   );
 
-  const closeIngredientModal = useCallback(
+  const handleIngredientModalClose = useCallback(
     () => dispatch(clearSelectedIngredient()),
     [dispatch]
   );
@@ -77,13 +77,13 @@ export const BurgerIngredients = (): React.JSX.Element => {
             ref={groupRefs[category.type]}
             title={category.title}
             ingredients={ingredientsByType[category.type]}
-            onIngredientClick={openIngredientModal}
+            onIngredientClick={handleIngredientClick}
           />
         ))}
       </div>
 
       {selectedIngredient && (
-        <Modal title="Детали ингредиента" onClose={closeIngredientModal}>
+        <Modal title="Детали ингредиента" onClose={handleIngredientModalClose}>
           <IngredientDetails ingredient={selectedIngredient} />
         </Modal>
       )}

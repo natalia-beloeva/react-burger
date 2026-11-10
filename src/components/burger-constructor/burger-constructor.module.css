@@ -22,7 +22,7 @@
   scrollbar-gutter: stable;
 }
 
-.fillings {
+.ingredients {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -31,7 +31,7 @@
   scrollbar-gutter: stable;
 }
 
-.filling_placeholder {
+.ingredient_placeholder {
   padding-left: 32px;
 }
 

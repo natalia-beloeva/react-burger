@@ -21,13 +21,13 @@ const IngredientCardComponent = ({
 }: TIngredientCardProps): React.JSX.Element => {
   const cardRef = useRef<HTMLElement>(null);
 
-  const [{ isDragging }, dragRef] = useDrag({
+  const [{ isDragging }, drag] = useDrag({
     type: INGREDIENT_DND_TYPE,
     item: ingredient,
     collect: (monitor) => ({ isDragging: monitor.isDragging() }),
   });
 
-  dragRef(cardRef);
+  drag(cardRef);
 
   const handleKeyDown = (event: React.KeyboardEvent): void => {
     if (event.key === 'Enter' || event.key === ' ') {
