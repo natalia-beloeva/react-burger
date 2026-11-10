@@ -1,33 +1,55 @@
 import { ConstructorElement } from '@krgaa/react-developer-burger-ui-components';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
+import { useDrop } from 'react-dnd';
 
+import { ConstructorPlaceholder } from '@components/burger-constructor/components/constructor-placeholder/constructor-placeholder';
 import { DraggableConstructorElement } from '@components/burger-constructor/components/draggable-constructor-element/draggable-constructor-element';
 import { OrderSummary } from '@components/burger-constructor/components/order-summary/order-summary';
-import { useAppSelector } from '@services/hooks';
+import { addIngredient } from '@services/burger-constructor/burger-constructor-slice';
+import { useAppDispatch, useAppSelector } from '@services/hooks';
+import { INGREDIENT_DND_TYPE } from '@utils/constants';
+
+import type { TIngredient } from '@utils/types';
 
 import styles from './burger-constructor.module.css';
 
 export const BurgerConstructor = (): React.JSX.Element => {
-  const { bun, fillings } = useAppSelector((state) => state.burgerConstructor);
+  const { bun, ingredients } = useAppSelector((state) => state.burgerConstructor);
+  const dispatch = useAppDispatch();
+
+  const dropAreaRef = useRef<HTMLDivElement>(null);
+
+  const [{ isOver }, dropRef] = useDrop({
+    accept: INGREDIENT_DND_TYPE,
+    drop: (ingredient: TIngredient) => {
+      dispatch(addIngredient(ingredient));
+    },
+    collect: (monitor) => ({ isOver: monitor.isOver() }),
+  });
+
+  dropRef(dropAreaRef);
 
   const totalPrice = useMemo(
     () =>
       (bun ? bun.price * 2 : 0) +
-      fillings.reduce((sum, ingredient) => sum + ingredient.price, 0),
-    [bun, fillings]
+      ingredients.reduce((sum, ingredient) => sum + ingredient.price, 0),
+    [bun, ingredients]
   );
 
   const orderIngredientIds = useMemo(
     () =>
-      bun ? [bun._id, ...fillings.map((ingredient) => ingredient._id), bun._id] : [],
-    [bun, fillings]
+      bun ? [bun._id, ...ingredients.map((ingredient) => ingredient._id), bun._id] : [],
+    [bun, ingredients]
   );
 
   return (
     <section className={styles.burger_constructor}>
-      <div className={styles.elements}>
-        {bun && (
-          <div className={`${styles.bun} custom-scroll`}>
+      <div
+        ref={dropAreaRef}
+        className={`${styles.elements} ${isOver ? styles.drop_hover : ''}`}
+      >
+        <div className={`${styles.bun} custom-scroll`}>
+          {bun ? (
             <ConstructorElement
               type="top"
               isLocked={true}
@@ -35,19 +57,27 @@ export const BurgerConstructor = (): React.JSX.Element => {
               price={bun.price}
               thumbnail={bun.image}
             />
-          </div>
-        )}
+          ) : (
+            <ConstructorPlaceholder type="top" text="Выберите булки" />
+          )}
+        </div>
 
         <ul className={`${styles.fillings} custom-scroll`}>
-          {fillings.map((ingredient) => (
-            <li key={ingredient.key}>
-              <DraggableConstructorElement ingredient={ingredient} />
+          {ingredients.length > 0 ? (
+            ingredients.map((ingredient) => (
+              <li key={ingredient.key}>
+                <DraggableConstructorElement ingredient={ingredient} />
+              </li>
+            ))
+          ) : (
+            <li className={styles.filling_placeholder}>
+              <ConstructorPlaceholder text="Выберите начинку" />
             </li>
-          ))}
+          )}
         </ul>
 
-        {bun && (
-          <div className={`${styles.bun} custom-scroll`}>
+        <div className={`${styles.bun} custom-scroll`}>
+          {bun ? (
             <ConstructorElement
               type="bottom"
               isLocked={true}
@@ -55,8 +85,10 @@ export const BurgerConstructor = (): React.JSX.Element => {
               price={bun.price}
               thumbnail={bun.image}
             />
-          </div>
-        )}
+          ) : (
+            <ConstructorPlaceholder type="bottom" text="Выберите булки" />
+          )}
+        </div>
       </div>
 
       <OrderSummary totalPrice={totalPrice} ingredientIds={orderIngredientIds} />

@@ -1,5 +1,8 @@
 import { Counter, CurrencyIcon } from '@krgaa/react-developer-burger-ui-components';
-import { memo } from 'react';
+import { memo, useRef } from 'react';
+import { useDrag } from 'react-dnd';
+
+import { INGREDIENT_DND_TYPE } from '@utils/constants';
 
 import type { TIngredient } from '@utils/types';
 
@@ -16,6 +19,16 @@ const IngredientCardComponent = ({
   count = 0,
   onClick,
 }: TIngredientCardProps): React.JSX.Element => {
+  const cardRef = useRef<HTMLElement>(null);
+
+  const [{ isDragging }, dragRef] = useDrag({
+    type: INGREDIENT_DND_TYPE,
+    item: ingredient,
+    collect: (monitor) => ({ isDragging: monitor.isDragging() }),
+  });
+
+  dragRef(cardRef);
+
   const handleKeyDown = (event: React.KeyboardEvent): void => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -25,7 +38,8 @@ const IngredientCardComponent = ({
 
   return (
     <article
-      className={styles.card}
+      ref={cardRef}
+      className={`${styles.card} ${isDragging ? styles.dragging : ''}`}
       role="button"
       tabIndex={0}
       onClick={() => onClick(ingredient)}

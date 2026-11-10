@@ -1,5 +1,7 @@
 import { Preloader } from '@krgaa/react-developer-burger-ui-components';
 import { useEffect } from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import { AppHeader } from '@components/app-header/app-header';
 import { BurgerConstructor } from '@components/burger-constructor/burger-constructor';
@@ -37,10 +39,10 @@ export const App = (): React.JSX.Element => {
         )}
 
         {!isLoading && !error && (
-          <>
+          <DndProvider backend={HTML5Backend}>
             <BurgerIngredients />
             <BurgerConstructor />
-          </>
+          </DndProvider>
         )}
       </main>
     </div>

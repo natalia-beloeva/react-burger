@@ -10,3 +10,5 @@ export const INGREDIENT_CATEGORIES: { type: TIngredientType; title: string }[] =
   { type: 'sauce', title: 'Соусы' },
   { type: 'main', title: 'Начинки' },
 ];
+
+export const INGREDIENT_DND_TYPE = 'ingredient';

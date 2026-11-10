@@ -7,12 +7,12 @@ import type { TConstructorIngredient, TIngredient } from '@utils/types';
 
 type TBurgerConstructorState = {
   bun: TIngredient | null;
-  fillings: TConstructorIngredient[];
+  ingredients: TConstructorIngredient[];
 };
 
 const initialState: TBurgerConstructorState = {
   bun: null,
-  fillings: [],
+  ingredients: [],
 };
 
 const burgerConstructorSlice = createSlice({
@@ -24,7 +24,7 @@ const burgerConstructorSlice = createSlice({
         if (action.payload.type === 'bun') {
           state.bun = action.payload;
         } else {
-          state.fillings.push(action.payload);
+          state.ingredients.push(action.payload);
         }
       },
       prepare: (ingredient: TIngredient) => ({
@@ -32,7 +32,7 @@ const burgerConstructorSlice = createSlice({
       }),
     },
     removeIngredient: (state, action: PayloadAction<string>) => {
-      state.fillings = state.fillings.filter(
+      state.ingredients = state.ingredients.filter(
         (ingredient) => ingredient.key !== action.payload
       );
     },
