@@ -1,5 +1,5 @@
 import { ConstructorElement } from '@krgaa/react-developer-burger-ui-components';
-import { useMemo, useRef } from 'react';
+import { useRef } from 'react';
 import { useDrop } from 'react-dnd';
 
 import { ConstructorPlaceholder } from '@components/burger-constructor/components/constructor-placeholder/constructor-placeholder';
@@ -33,19 +33,6 @@ export const BurgerConstructor = (): React.JSX.Element => {
   const [, listDrop] = useDrop({ accept: CONSTRUCTOR_INGREDIENT_DND_TYPE });
 
   listDrop(listRef);
-
-  const totalPrice = useMemo(
-    () =>
-      (bun ? bun.price * 2 : 0) +
-      ingredients.reduce((sum, ingredient) => sum + ingredient.price, 0),
-    [bun, ingredients]
-  );
-
-  const orderIngredientIds = useMemo(
-    () =>
-      bun ? [bun._id, ...ingredients.map((ingredient) => ingredient._id), bun._id] : [],
-    [bun, ingredients]
-  );
 
   return (
     <section className={styles.burger_constructor}>
@@ -96,7 +83,7 @@ export const BurgerConstructor = (): React.JSX.Element => {
         </div>
       </div>
 
-      <OrderSummary totalPrice={totalPrice} ingredientIds={orderIngredientIds} />
+      <OrderSummary />
     </section>
   );
 };

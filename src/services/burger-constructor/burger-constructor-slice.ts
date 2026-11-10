@@ -76,3 +76,16 @@ export const selectIngredientCounts = createSelector(
     return counts;
   }
 );
+
+export const selectTotalPrice = createSelector(
+  [selectBurgerConstructor],
+  ({ bun, ingredients }): number =>
+    (bun ? bun.price * 2 : 0) +
+    ingredients.reduce((sum, ingredient) => sum + ingredient.price, 0)
+);
+
+export const selectOrderIngredientIds = createSelector(
+  [selectBurgerConstructor],
+  ({ bun, ingredients }): string[] =>
+    bun ? [bun._id, ...ingredients.map((ingredient) => ingredient._id), bun._id] : []
+);
