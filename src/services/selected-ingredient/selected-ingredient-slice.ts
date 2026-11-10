@@ -11,7 +11,7 @@ const initialState: TSelectedIngredientState = {
   item: null,
 };
 
-const selectedIngredientSlice = createSlice({
+export const selectedIngredientSlice = createSlice({
   name: 'selectedIngredient',
   initialState,
   reducers: {
@@ -22,8 +22,11 @@ const selectedIngredientSlice = createSlice({
       state.item = null;
     },
   },
+  selectors: {
+    selectSelectedIngredient: (state) => state.item,
+  },
 });
 
-export const selectedIngredientReducer = selectedIngredientSlice.reducer;
 export const { setSelectedIngredient, clearSelectedIngredient } =
   selectedIngredientSlice.actions;
+export const { selectSelectedIngredient } = selectedIngredientSlice.selectors;

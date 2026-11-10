@@ -18,3 +18,8 @@
 .bottom {
   border-radius: var(--bottom-constructor-item-border-radius);
 }
+
+.highlighted {
+  outline: 2px dashed var(--colors-interface-accent);
+  outline-offset: -2px;
+}

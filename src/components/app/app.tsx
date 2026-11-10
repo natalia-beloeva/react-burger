@@ -8,14 +8,19 @@ import { BurgerConstructor } from '@components/burger-constructor/burger-constru
 import { BurgerIngredients } from '@components/burger-ingredients/burger-ingredients';
 import { ErrorMessage } from '@components/error-message/error-message';
 import { useAppDispatch, useAppSelector } from '@services/hooks';
-import { fetchIngredients } from '@services/ingredients/ingredients-slice';
+import {
+  fetchIngredients,
+  selectIngredientsError,
+  selectIngredientsLoading,
+} from '@services/ingredients/ingredients-slice';
 
 import styles from './app.module.css';
 
 export const App = (): React.JSX.Element => {
   const dispatch = useAppDispatch();
 
-  const { isLoading, error } = useAppSelector((state) => state.ingredients);
+  const isLoading = useAppSelector(selectIngredientsLoading);
+  const error = useAppSelector(selectIngredientsError);
 
   useEffect(() => {
     void dispatch(fetchIngredients());

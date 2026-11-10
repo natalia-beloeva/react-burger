@@ -9,7 +9,13 @@ import {
   selectTotalPrice,
 } from '@services/burger-constructor/burger-constructor-slice';
 import { useAppDispatch, useAppSelector } from '@services/hooks';
-import { placeOrder, clearOrder } from '@services/order/order-slice';
+import {
+  placeOrder,
+  clearOrder,
+  selectOrder,
+  selectOrderError,
+  selectOrderLoading,
+} from '@services/order/order-slice';
 
 import styles from './order-summary.module.css';
 
@@ -19,7 +25,9 @@ export const OrderSummary = (): React.JSX.Element => {
   const totalPrice = useAppSelector(selectTotalPrice);
   const ingredientIds = useAppSelector(selectOrderIngredientIds);
 
-  const { item: order, isLoading, error } = useAppSelector((state) => state.order);
+  const order = useAppSelector(selectOrder);
+  const isLoading = useAppSelector(selectOrderLoading);
+  const error = useAppSelector(selectOrderError);
 
   const handleOrderClick = useCallback(() => {
     void dispatch(placeOrder(ingredientIds));

@@ -4,6 +4,7 @@ import { rootReducer } from '@services/root-reducer';
 
 export const store = configureStore({
   reducer: rootReducer,
+  devTools: import.meta.env.DEV,
 });
 
 export type RootState = ReturnType<typeof store.getState>;

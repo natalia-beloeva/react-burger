@@ -6,9 +6,11 @@ import { IngredientsTabs } from '@components/burger-ingredients/components/ingre
 import { Modal } from '@components/modal/modal';
 import { useScrollSpy } from '@hooks/use-scroll-spy';
 import { useAppDispatch, useAppSelector } from '@services/hooks';
+import { selectIngredients } from '@services/ingredients/ingredients-slice';
 import {
   setSelectedIngredient,
   clearSelectedIngredient,
+  selectSelectedIngredient,
 } from '@services/selected-ingredient/selected-ingredient-slice';
 import { INGREDIENT_CATEGORIES } from '@utils/constants';
 
@@ -17,8 +19,8 @@ import type { TIngredient, TIngredientType } from '@utils/types';
 import styles from '../burger-ingredients/burger-ingredients.module.css';
 
 export const BurgerIngredients = (): React.JSX.Element => {
-  const ingredients = useAppSelector((state) => state.ingredients.items);
-  const selectedIngredient = useAppSelector((state) => state.selectedIngredient.item);
+  const ingredients = useAppSelector(selectIngredients);
+  const selectedIngredient = useAppSelector(selectSelectedIngredient);
   const dispatch = useAppDispatch();
 
   const ingredientsByType: Record<TIngredientType, TIngredient[]> = useMemo(

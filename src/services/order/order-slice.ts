@@ -18,7 +18,7 @@ const initialState: TOrderState = {
 
 export const placeOrder = createAsyncThunk('order/placeOrder', createOrder);
 
-const orderSlice = createSlice({
+export const orderSlice = createSlice({
   name: 'order',
   initialState,
   reducers: {
@@ -42,7 +42,13 @@ const orderSlice = createSlice({
         state.error = action.error.message ?? 'Ошибка при создании заказа';
       });
   },
+  selectors: {
+    selectOrder: (state) => state.item,
+    selectOrderLoading: (state) => state.isLoading,
+    selectOrderError: (state) => state.error,
+  },
 });
 
-export const orderReducer = orderSlice.reducer;
 export const { clearOrder } = orderSlice.actions;
+export const { selectOrder, selectOrderLoading, selectOrderError } =
+  orderSlice.selectors;

@@ -3,7 +3,6 @@ import { createSelector, createSlice, nanoid } from '@reduxjs/toolkit';
 import { placeOrder } from '@services/order/order-slice';
 
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { RootState } from '@services/store';
 import type { TConstructorIngredient, TIngredient } from '@utils/types';
 
 type TBurgerConstructorState = {
@@ -16,7 +15,11 @@ const initialState: TBurgerConstructorState = {
   ingredients: [],
 };
 
-const burgerConstructorSlice = createSlice({
+const getBun = (state: TBurgerConstructorState): TIngredient | null => state.bun;
+const getIngredients = (state: TBurgerConstructorState): TConstructorIngredient[] =>
+  state.ingredients;
+
+export const burgerConstructorSlice = createSlice({
   name: 'burgerConstructor',
   initialState,
   reducers: {
@@ -51,41 +54,46 @@ const burgerConstructorSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(placeOrder.fulfilled, () => initialState);
   },
+  selectors: {
+    selectBun: getBun,
+    selectConstructorIngredients: getIngredients,
+    selectIngredientCounts: createSelector(
+      [getBun, getIngredients],
+      (bun, ingredients): Record<string, number> => {
+        const counts: Record<string, number> = {};
+
+        for (const ingredient of ingredients) {
+          counts[ingredient._id] = (counts[ingredient._id] ?? 0) + 1;
+        }
+
+        if (bun) {
+          counts[bun._id] = 2;
+        }
+
+        return counts;
+      }
+    ),
+    selectTotalPrice: createSelector(
+      [getBun, getIngredients],
+      (bun, ingredients): number =>
+        (bun ? bun.price * 2 : 0) +
+        ingredients.reduce((sum, ingredient) => sum + ingredient.price, 0)
+    ),
+    selectOrderIngredientIds: createSelector(
+      [getBun, getIngredients],
+      (bun, ingredients): string[] =>
+        bun ? [bun._id, ...ingredients.map((ingredient) => ingredient._id), bun._id] : []
+    ),
+  },
 });
 
-export const burgerConstructorReducer = burgerConstructorSlice.reducer;
 export const { addIngredient, removeIngredient, moveIngredient, clearConstructor } =
   burgerConstructorSlice.actions;
 
-const selectBurgerConstructor = (state: RootState): TBurgerConstructorState =>
-  state.burgerConstructor;
-
-export const selectIngredientCounts = createSelector(
-  [selectBurgerConstructor],
-  ({ bun, ingredients }): Record<string, number> => {
-    const counts: Record<string, number> = {};
-
-    for (const ingredient of ingredients) {
-      counts[ingredient._id] = (counts[ingredient._id] ?? 0) + 1;
-    }
-
-    if (bun) {
-      counts[bun._id] = 2;
-    }
-
-    return counts;
-  }
-);
-
-export const selectTotalPrice = createSelector(
-  [selectBurgerConstructor],
-  ({ bun, ingredients }): number =>
-    (bun ? bun.price * 2 : 0) +
-    ingredients.reduce((sum, ingredient) => sum + ingredient.price, 0)
-);
-
-export const selectOrderIngredientIds = createSelector(
-  [selectBurgerConstructor],
-  ({ bun, ingredients }): string[] =>
-    bun ? [bun._id, ...ingredients.map((ingredient) => ingredient._id), bun._id] : []
-);
+export const {
+  selectBun,
+  selectConstructorIngredients,
+  selectIngredientCounts,
+  selectTotalPrice,
+  selectOrderIngredientIds,
+} = burgerConstructorSlice.selectors;
