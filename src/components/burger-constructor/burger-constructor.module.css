@@ -22,11 +22,21 @@
   scrollbar-gutter: stable;
 }
 
-.fillings {
+.ingredients {
   display: flex;
   flex-direction: column;
   gap: 16px;
   padding-right: 8px;
   overflow-y: auto;
   scrollbar-gutter: stable;
+}
+
+.ingredient_placeholder {
+  padding-left: 32px;
+}
+
+.drop_hover {
+  border-radius: var(--common-border-radius-s);
+  outline: 2px dashed var(--colors-interface-accent);
+  outline-offset: 8px;
 }

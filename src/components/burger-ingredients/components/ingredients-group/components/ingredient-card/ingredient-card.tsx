@@ -1,5 +1,10 @@
 import { Counter, CurrencyIcon } from '@krgaa/react-developer-burger-ui-components';
-import { memo } from 'react';
+import { memo, useRef } from 'react';
+import { useDrag } from 'react-dnd';
+
+import { selectIngredientCounts } from '@services/burger-constructor/burger-constructor-slice';
+import { useAppSelector } from '@services/hooks';
+import { INGREDIENT_DND_TYPE } from '@utils/constants';
 
 import type { TIngredient } from '@utils/types';
 
@@ -7,15 +12,27 @@ import styles from '../ingredient-card/ingredient-card.module.css';
 
 type TIngredientCardProps = {
   ingredient: TIngredient;
-  count?: number;
   onClick: (ingredient: TIngredient) => void;
 };
 
 const IngredientCardComponent = ({
   ingredient,
-  count = 0,
   onClick,
 }: TIngredientCardProps): React.JSX.Element => {
+  const count = useAppSelector(
+    (state) => selectIngredientCounts(state)[ingredient._id] ?? 0
+  );
+
+  const cardRef = useRef<HTMLElement>(null);
+
+  const [{ isDragging }, drag] = useDrag({
+    type: INGREDIENT_DND_TYPE,
+    item: ingredient,
+    collect: (monitor) => ({ isDragging: monitor.isDragging() }),
+  });
+
+  drag(cardRef);
+
   const handleKeyDown = (event: React.KeyboardEvent): void => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -25,7 +42,8 @@ const IngredientCardComponent = ({
 
   return (
     <article
-      className={styles.card}
+      ref={cardRef}
+      className={`${styles.card} ${isDragging ? styles.dragging : ''}`}
       role="button"
       tabIndex={0}
       onClick={() => onClick(ingredient)}

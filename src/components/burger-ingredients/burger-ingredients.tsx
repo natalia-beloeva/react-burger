@@ -1,34 +1,39 @@
-import { useCallback, useMemo, useState, useRef } from 'react';
+import { useMemo, useRef, useCallback } from 'react';
 
 import { IngredientDetails } from '@components/burger-ingredients/components/ingredient-details/ingredient-details';
 import { IngredientsGroup } from '@components/burger-ingredients/components/ingredients-group/ingredients-group';
 import { IngredientsTabs } from '@components/burger-ingredients/components/ingredients-tabs/ingredients-tabs';
 import { Modal } from '@components/modal/modal';
+import { useScrollSpy } from '@hooks/use-scroll-spy';
+import { useAppDispatch, useAppSelector } from '@services/hooks';
+import { selectIngredients } from '@services/ingredients/ingredients-slice';
+import {
+  setSelectedIngredient,
+  clearSelectedIngredient,
+  selectSelectedIngredient,
+} from '@services/selected-ingredient/selected-ingredient-slice';
+import { INGREDIENT_CATEGORIES } from '@utils/constants';
 
 import type { TIngredient, TIngredientType } from '@utils/types';
 
 import styles from '../burger-ingredients/burger-ingredients.module.css';
 
-type TBurgerIngredientsProps = {
-  ingredients: TIngredient[];
-};
+export const BurgerIngredients = (): React.JSX.Element => {
+  const dispatch = useAppDispatch();
 
-export const BurgerIngredients = ({
-  ingredients,
-}: TBurgerIngredientsProps): React.JSX.Element => {
-  const buns = useMemo(
-    () => ingredients.filter((ingredient) => ingredient.type === 'bun'),
-    [ingredients]
-  );
-  const sauces = useMemo(
-    () => ingredients.filter((ingredient) => ingredient.type === 'sauce'),
-    [ingredients]
-  );
-  const mains = useMemo(
-    () => ingredients.filter((ingredient) => ingredient.type === 'main'),
+  const ingredients = useAppSelector(selectIngredients);
+  const selectedIngredient = useAppSelector(selectSelectedIngredient);
+
+  const ingredientsByType: Record<TIngredientType, TIngredient[]> = useMemo(
+    () => ({
+      bun: ingredients.filter((ingredient) => ingredient.type === 'bun'),
+      sauce: ingredients.filter((ingredient) => ingredient.type === 'sauce'),
+      main: ingredients.filter((ingredient) => ingredient.type === 'main'),
+    }),
     [ingredients]
   );
 
+  const listsRef = useRef<HTMLDivElement>(null);
   const bunsRef = useRef<HTMLElement>(null);
   const saucesRef = useRef<HTMLElement>(null);
   const mainsRef = useRef<HTMLElement>(null);
@@ -39,50 +44,49 @@ export const BurgerIngredients = ({
     main: mainsRef,
   };
 
-  const [currentTab, setCurrentTab] = useState<TIngredientType>('bun');
-  const [selectedIngredient, setSelectedIngredient] = useState<TIngredient | null>(null);
+  const categorySections = INGREDIENT_CATEGORIES.map((category) => ({
+    id: category.type,
+    ref: groupRefs[category.type],
+  }));
 
-  const handleIngredientClick = useCallback((ingredient: TIngredient) => {
-    setSelectedIngredient(ingredient);
-  }, []);
+  const {
+    activeSection: currentTab,
+    handleScroll: handleListsScroll,
+    scrollToSection,
+  } = useScrollSpy(listsRef, categorySections, INGREDIENT_CATEGORIES[0].type);
 
-  const handleCloseIngredientModal = useCallback(() => setSelectedIngredient(null), []);
+  const handleIngredientClick = useCallback(
+    (ingredient: TIngredient) => dispatch(setSelectedIngredient(ingredient)),
+    [dispatch]
+  );
+
+  const handleIngredientModalClose = useCallback(
+    () => dispatch(clearSelectedIngredient()),
+    [dispatch]
+  );
 
   return (
     <section className={styles.burger_ingredients}>
-      <IngredientsTabs
-        currentTab={currentTab}
-        onTabClick={(tab) => {
-          setCurrentTab(tab);
-          groupRefs[tab].current?.scrollIntoView({ behavior: 'smooth' });
-        }}
-      />
+      <IngredientsTabs currentTab={currentTab} onTabClick={scrollToSection} />
 
-      <div className={`${styles.lists} custom-scroll mt-10`}>
-        <IngredientsGroup
-          ref={bunsRef}
-          title="Булки"
-          ingredients={buns}
-          onIngredientClick={handleIngredientClick}
-        />
-        <IngredientsGroup
-          ref={saucesRef}
-          title="Соусы"
-          ingredients={sauces}
-          className="mt-10"
-          onIngredientClick={handleIngredientClick}
-        />
-        <IngredientsGroup
-          ref={mainsRef}
-          title="Начинки"
-          ingredients={mains}
-          className="mt-10"
-          onIngredientClick={handleIngredientClick}
-        />
+      <div
+        ref={listsRef}
+        className={`${styles.lists} custom-scroll mt-10`}
+        onScroll={handleListsScroll}
+      >
+        {INGREDIENT_CATEGORIES.map((category) => (
+          <IngredientsGroup
+            key={category.type}
+            ref={groupRefs[category.type]}
+            title={category.title}
+            ingredients={ingredientsByType[category.type]}
+            onIngredientClick={handleIngredientClick}
+          />
+        ))}
       </div>
 
       {selectedIngredient && (
-        <Modal title="Детали ингредиента" onClose={handleCloseIngredientModal}>
+        <Modal title="Детали ингредиента" onClose={handleIngredientModalClose}>
           <IngredientDetails ingredient={selectedIngredient} />
         </Modal>
       )}

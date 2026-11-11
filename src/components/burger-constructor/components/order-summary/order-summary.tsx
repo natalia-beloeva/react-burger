@@ -1,20 +1,39 @@
 import { Button, CurrencyIcon } from '@krgaa/react-developer-burger-ui-components';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 
-import { OrderDetails } from '@components/burger-constructor/components/order-details/order-details';
+import { OrderDetails } from '@components/burger-constructor/components/order-summary/components/order-details/order-details';
+import { ErrorMessage } from '@components/error-message/error-message';
 import { Modal } from '@components/modal/modal';
-import { mockOrder } from '@utils/mocks';
+import {
+  selectOrderIngredientIds,
+  selectTotalPrice,
+} from '@services/burger-constructor/burger-constructor-slice';
+import { useAppDispatch, useAppSelector } from '@services/hooks';
+import {
+  placeOrder,
+  clearOrder,
+  selectOrder,
+  selectOrderError,
+  selectOrderLoading,
+} from '@services/order/order-slice';
 
 import styles from './order-summary.module.css';
 
-type TOrderSummaryProps = {
-  totalPrice: number;
-};
+export const OrderSummary = (): React.JSX.Element => {
+  const dispatch = useAppDispatch();
 
-export const OrderSummary = ({ totalPrice }: TOrderSummaryProps): React.JSX.Element => {
-  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const totalPrice = useAppSelector(selectTotalPrice);
+  const ingredientIds = useAppSelector(selectOrderIngredientIds);
 
-  const handleCloseOrderModal = useCallback(() => setIsOrderModalOpen(false), []);
+  const order = useAppSelector(selectOrder);
+  const isLoading = useAppSelector(selectOrderLoading);
+  const error = useAppSelector(selectOrderError);
+
+  const handleOrderClick = useCallback(() => {
+    void dispatch(placeOrder(ingredientIds));
+  }, [dispatch, ingredientIds]);
+
+  const handleOrderModalClose = useCallback(() => dispatch(clearOrder()), [dispatch]);
 
   return (
     <>
@@ -28,15 +47,23 @@ export const OrderSummary = ({ totalPrice }: TOrderSummaryProps): React.JSX.Elem
           type="primary"
           size="large"
           htmlType="button"
-          onClick={() => setIsOrderModalOpen(true)}
+          disabled={isLoading || ingredientIds.length === 0}
+          onClick={handleOrderClick}
         >
-          Оформить заказ
+          {isLoading ? 'Оформляем...' : 'Оформить заказ'}
         </Button>
       </div>
 
-      {isOrderModalOpen && (
-        <Modal onClose={handleCloseOrderModal}>
-          <OrderDetails order={mockOrder} />
+      {(order ?? error) && (
+        <Modal onClose={handleOrderModalClose}>
+          {order ? (
+            <OrderDetails order={order} />
+          ) : (
+            <ErrorMessage
+              title="Не удалось оформить заказ"
+              details="Попробуйте ещё раз"
+            />
+          )}
         </Modal>
       )}
     </>

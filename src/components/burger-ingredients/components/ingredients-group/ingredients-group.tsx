@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-import { IngredientCard } from '@components/burger-ingredients/components/ingredient-card/ingredient-card';
+import { IngredientCard } from '@components/burger-ingredients/components/ingredients-group/components/ingredient-card/ingredient-card';
 
 import type { TIngredient } from '@utils/types';
 
@@ -10,7 +10,6 @@ type TIngredientsGroupProps = {
   ref: React.Ref<HTMLElement>;
   title: string;
   ingredients: TIngredient[];
-  className?: string;
   onIngredientClick: (ingredient: TIngredient) => void;
 };
 
@@ -18,11 +17,10 @@ const IngredientsGroupComponent = ({
   ref,
   title,
   ingredients,
-  className,
   onIngredientClick,
 }: TIngredientsGroupProps): React.JSX.Element => {
   return (
-    <section ref={ref} className={className}>
+    <section ref={ref}>
       <h2 className="text text_type_main-medium">{title}</h2>
 
       <ul className={`${styles.list} mt-6`}>

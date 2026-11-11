@@ -1,41 +1,61 @@
 import { ConstructorElement } from '@krgaa/react-developer-burger-ui-components';
-import { useMemo } from 'react';
+import { useRef } from 'react';
+import { useDrop } from 'react-dnd';
 
+import { ConstructorPlaceholder } from '@components/burger-constructor/components/constructor-placeholder/constructor-placeholder';
 import { DraggableConstructorElement } from '@components/burger-constructor/components/draggable-constructor-element/draggable-constructor-element';
 import { OrderSummary } from '@components/burger-constructor/components/order-summary/order-summary';
+import {
+  addIngredient,
+  selectBun,
+  selectConstructorIngredients,
+} from '@services/burger-constructor/burger-constructor-slice';
+import { useAppDispatch, useAppSelector } from '@services/hooks';
+import { CONSTRUCTOR_INGREDIENT_DND_TYPE, INGREDIENT_DND_TYPE } from '@utils/constants';
 
 import type { TIngredient } from '@utils/types';
 
 import styles from './burger-constructor.module.css';
 
-type TBurgerConstructorProps = {
-  ingredients: TIngredient[];
-};
+export const BurgerConstructor = (): React.JSX.Element => {
+  const dispatch = useAppDispatch();
 
-export const BurgerConstructor = ({
-  ingredients,
-}: TBurgerConstructorProps): React.JSX.Element => {
-  const bun = useMemo(
-    () => ingredients.find((ingredient) => ingredient.type === 'bun'),
-    [ingredients]
-  );
-  const fillings = useMemo(
-    () => ingredients.filter((ingredient) => ingredient.type !== 'bun'),
-    [ingredients]
-  );
+  const bun = useAppSelector(selectBun);
+  const ingredients = useAppSelector(selectConstructorIngredients);
 
-  const totalPrice = useMemo(
-    () =>
-      (bun ? bun.price * 2 : 0) +
-      fillings.reduce((sum, ingredient) => sum + ingredient.price, 0),
-    [bun, fillings]
-  );
+  const dropAreaRef = useRef<HTMLDivElement>(null);
+
+  const [{ isOver, draggedType }, drop] = useDrop({
+    accept: INGREDIENT_DND_TYPE,
+    drop: (ingredient: TIngredient) => {
+      dispatch(addIngredient(ingredient));
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+      draggedType: monitor.canDrop() ? monitor.getItem<TIngredient>().type : null,
+    }),
+  });
+
+  const isBunDragged = draggedType === 'bun';
+  const isFillingDragged = draggedType !== null && draggedType !== 'bun';
+  const isPlaceholderHighlighted =
+    (isBunDragged && !bun) || (isFillingDragged && ingredients.length === 0);
+
+  drop(dropAreaRef);
+
+  const listRef = useRef<HTMLUListElement>(null);
+  const [, listDrop] = useDrop({ accept: CONSTRUCTOR_INGREDIENT_DND_TYPE });
+
+  listDrop(listRef);
 
   return (
     <section className={styles.burger_constructor}>
-      <div className={styles.elements}>
-        {bun && (
-          <div className={`${styles.bun} custom-scroll`}>
+      <div
+        ref={dropAreaRef}
+        className={`${styles.elements} ${isOver && !isPlaceholderHighlighted ? styles.drop_hover : ''}`}
+      >
+        <div className={`${styles.bun} custom-scroll`}>
+          {bun ? (
             <ConstructorElement
               type="top"
               isLocked={true}
@@ -43,19 +63,34 @@ export const BurgerConstructor = ({
               price={bun.price}
               thumbnail={bun.image}
             />
-          </div>
-        )}
+          ) : (
+            <ConstructorPlaceholder
+              type="top"
+              text="Выберите булки"
+              isHighlighted={isBunDragged}
+            />
+          )}
+        </div>
 
-        <ul className={`${styles.fillings} custom-scroll`}>
-          {fillings.map((ingredient) => (
-            <li key={ingredient._id}>
-              <DraggableConstructorElement ingredient={ingredient} />
+        <ul ref={listRef} className={`${styles.ingredients} custom-scroll`}>
+          {ingredients.length > 0 ? (
+            ingredients.map((ingredient, index) => (
+              <li key={ingredient.key}>
+                <DraggableConstructorElement ingredient={ingredient} index={index} />
+              </li>
+            ))
+          ) : (
+            <li className={styles.ingredient_placeholder}>
+              <ConstructorPlaceholder
+                text="Выберите начинку"
+                isHighlighted={isFillingDragged}
+              />
             </li>
-          ))}
+          )}
         </ul>
 
-        {bun && (
-          <div className={`${styles.bun} custom-scroll`}>
+        <div className={`${styles.bun} custom-scroll`}>
+          {bun ? (
             <ConstructorElement
               type="bottom"
               isLocked={true}
@@ -63,11 +98,17 @@ export const BurgerConstructor = ({
               price={bun.price}
               thumbnail={bun.image}
             />
-          </div>
-        )}
+          ) : (
+            <ConstructorPlaceholder
+              type="bottom"
+              text="Выберите булки"
+              isHighlighted={isBunDragged}
+            />
+          )}
+        </div>
       </div>
 
-      <OrderSummary totalPrice={totalPrice} />
+      <OrderSummary />
     </section>
   );
 };

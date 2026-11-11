@@ -7,3 +7,7 @@
 .icon {
   flex-shrink: 0;
 }
+
+.dragging {
+  opacity: 0;
+}

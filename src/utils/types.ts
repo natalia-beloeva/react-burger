@@ -15,6 +15,10 @@ export type TIngredient = {
   __v: number;
 };
 
+export type TConstructorIngredient = TIngredient & {
+  key: string;
+};
+
 export type TOrder = {
   number: number;
 };
