@@ -1,17 +1,11 @@
 import { useMemo, useRef, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-import { IngredientDetails } from '@components/burger-ingredients/components/ingredient-details/ingredient-details';
 import { IngredientsGroup } from '@components/burger-ingredients/components/ingredients-group/ingredients-group';
 import { IngredientsTabs } from '@components/burger-ingredients/components/ingredients-tabs/ingredients-tabs';
-import { Modal } from '@components/modal/modal';
 import { useScrollSpy } from '@hooks/use-scroll-spy';
-import { useAppDispatch, useAppSelector } from '@services/hooks';
+import { useAppSelector } from '@services/hooks';
 import { selectIngredients } from '@services/ingredients/ingredients-slice';
-import {
-  setSelectedIngredient,
-  clearSelectedIngredient,
-  selectSelectedIngredient,
-} from '@services/selected-ingredient/selected-ingredient-slice';
 import { INGREDIENT_CATEGORIES } from '@utils/constants';
 
 import type { TIngredient, TIngredientType } from '@utils/types';
@@ -19,10 +13,10 @@ import type { TIngredient, TIngredientType } from '@utils/types';
 import styles from '../burger-ingredients/burger-ingredients.module.css';
 
 export const BurgerIngredients = (): React.JSX.Element => {
-  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const ingredients = useAppSelector(selectIngredients);
-  const selectedIngredient = useAppSelector(selectSelectedIngredient);
 
   const ingredientsByType: Record<TIngredientType, TIngredient[]> = useMemo(
     () => ({
@@ -56,13 +50,12 @@ export const BurgerIngredients = (): React.JSX.Element => {
   } = useScrollSpy(listsRef, categorySections, INGREDIENT_CATEGORIES[0].type);
 
   const handleIngredientClick = useCallback(
-    (ingredient: TIngredient) => dispatch(setSelectedIngredient(ingredient)),
-    [dispatch]
-  );
-
-  const handleIngredientModalClose = useCallback(
-    () => dispatch(clearSelectedIngredient()),
-    [dispatch]
+    (ingredient: TIngredient) => {
+      void navigate(`/ingredients/${ingredient._id}`, {
+        state: { background: location },
+      });
+    },
+    [navigate, location]
   );
 
   return (
@@ -84,12 +77,6 @@ export const BurgerIngredients = (): React.JSX.Element => {
           />
         ))}
       </div>
-
-      {selectedIngredient && (
-        <Modal title="Детали ингредиента" onClose={handleIngredientModalClose}>
-          <IngredientDetails ingredient={selectedIngredient} />
-        </Modal>
-      )}
     </section>
   );
 };

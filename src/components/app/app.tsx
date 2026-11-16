@@ -1,55 +1,77 @@
-import { Preloader } from '@krgaa/react-developer-burger-ui-components';
-import { useEffect } from 'react';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+import { useCallback, useEffect } from 'react';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import { AppHeader } from '@components/app-header/app-header';
-import { BurgerConstructor } from '@components/burger-constructor/burger-constructor';
-import { BurgerIngredients } from '@components/burger-ingredients/burger-ingredients';
-import { ErrorMessage } from '@components/error-message/error-message';
-import { useAppDispatch, useAppSelector } from '@services/hooks';
-import {
-  fetchIngredients,
-  selectIngredientsError,
-  selectIngredientsLoading,
-} from '@services/ingredients/ingredients-slice';
+import { IngredientDetails } from '@components/ingredient-details/ingredient-details';
+import { Modal } from '@components/modal/modal';
+import { ProfileForm } from '@components/profile-form/profile-form';
+import { FeedPage } from '@pages/feed-page/feed-page';
+import { ForgotPasswordPage } from '@pages/forgot-password-page/forgot-password-page';
+import { HomePage } from '@pages/home-page/home-page';
+import { IngredientPage } from '@pages/ingredient-page/ingredient-page';
+import { LoginPage } from '@pages/login-page/login-page';
+import { NotFoundPage } from '@pages/not-found-page/not-found-page';
+import { ProfileOrderPage } from '@pages/profile-order-page/profile-order-page';
+import { ProfilePage } from '@pages/profile-page/profile-page';
+import { RegisterPage } from '@pages/register-page/register-page';
+import { ResetPasswordPage } from '@pages/reset-password-page/reset-password-page';
+import { useAppDispatch } from '@services/hooks';
+import { fetchIngredients } from '@services/ingredients/ingredients-slice';
+
+import type { Location } from 'react-router-dom';
 
 import styles from './app.module.css';
 
+type TLocationState = {
+  background?: Location;
+} | null;
+
 export const App = (): React.JSX.Element => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const isLoading = useAppSelector(selectIngredientsLoading);
-  const error = useAppSelector(selectIngredientsError);
+  const background = (location.state as TLocationState)?.background;
 
   useEffect(() => {
     void dispatch(fetchIngredients());
   }, [dispatch]);
 
+  const handleModalClose = useCallback(() => {
+    void navigate(-1);
+  }, [navigate]);
+
   return (
     <div className={styles.app}>
       <AppHeader />
-      <h1 className={`${styles.title} text text_type_main-large mt-10 mb-5 pl-5`}>
-        Соберите бургер
-      </h1>
 
-      <main className={`${styles.main} pl-5 pr-5`}>
-        {isLoading && <Preloader />}
+      <Routes location={background ?? location}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/ingredients/:id" element={<IngredientPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/profile" element={<ProfilePage />}>
+          <Route index element={<ProfileForm />} />
+          <Route path="orders" element={<ProfileOrderPage />} />
+        </Route>
+        <Route path="/feed" element={<FeedPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
 
-        {!isLoading && error && (
-          <ErrorMessage
-            title="Не удалось загрузить ингредиенты"
-            details={`Попробуйте обновить страницу. Причина: ${error}`}
+      {background && (
+        <Routes>
+          <Route
+            path="/ingredients/:id"
+            element={
+              <Modal title="Детали ингредиента" onClose={handleModalClose}>
+                <IngredientDetails />
+              </Modal>
+            }
           />
-        )}
-
-        {!isLoading && !error && (
-          <DndProvider backend={HTML5Backend}>
-            <BurgerIngredients />
-            <BurgerConstructor />
-          </DndProvider>
-        )}
-      </main>
+        </Routes>
+      )}
     </div>
   );
 };
