@@ -4,30 +4,48 @@ import {
   Logo,
   ProfileIcon,
 } from '@krgaa/react-developer-burger-ui-components';
+import { Link, NavLink } from 'react-router-dom';
 
 import styles from './app-header.module.css';
+
+const getLinkClassName = ({ isActive }: { isActive: boolean }): string =>
+  `${styles.link} ${isActive ? styles.link_active : ''}`;
 
 export const AppHeader = (): React.JSX.Element => {
   return (
     <header className={styles.header}>
       <nav className={`${styles.menu} p-4`}>
         <div className={styles.menu_part_left}>
-          <a href="/" className={`${styles.link} ${styles.link_active}`}>
-            <BurgerIcon type="primary" />
-            <p className="text text_type_main-default ml-2">Конструктор</p>
-          </a>
-          <a href="/feed" className={`${styles.link} ml-10`}>
-            <ListIcon type="secondary" />
-            <p className="text text_type_main-default ml-2">Лента заказов</p>
-          </a>
+          <NavLink to="/" end className={getLinkClassName}>
+            {({ isActive }) => (
+              <>
+                <BurgerIcon type={isActive ? 'primary' : 'secondary'} />
+                <p className="text text_type_main-default ml-2">Конструктор</p>
+              </>
+            )}
+          </NavLink>
+          <NavLink to="/feed" className={(state) => `${getLinkClassName(state)} ml-10`}>
+            {({ isActive }) => (
+              <>
+                <ListIcon type={isActive ? 'primary' : 'secondary'} />
+                <p className="text text_type_main-default ml-2">Лента заказов</p>
+              </>
+            )}
+          </NavLink>
         </div>
-        <div className={styles.logo}>
+        <Link to="/" className={styles.logo}>
           <Logo />
+        </Link>
+        <div className={styles.link_position_last}>
+          <NavLink to="/profile" className={getLinkClassName}>
+            {({ isActive }) => (
+              <>
+                <ProfileIcon type={isActive ? 'primary' : 'secondary'} />
+                <p className="text text_type_main-default ml-2">Личный кабинет</p>
+              </>
+            )}
+          </NavLink>
         </div>
-        <a href="/profile" className={`${styles.link} ${styles.link_position_last}`}>
-          <ProfileIcon type="secondary" />
-          <p className="text text_type_main-default ml-2">Личный кабинет</p>
-        </a>
       </nav>
     </header>
   );

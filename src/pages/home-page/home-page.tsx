@@ -11,9 +11,9 @@ import {
   selectIngredientsLoading,
 } from '@services/ingredients/ingredients-slice';
 
-import styles from './home.module.css';
+import styles from './home-page.module.css';
 
-export const Home = (): React.JSX.Element => {
+export const HomePage = (): React.JSX.Element => {
   const isLoading = useAppSelector(selectIngredientsLoading);
   const error = useAppSelector(selectIngredientsError);
 
